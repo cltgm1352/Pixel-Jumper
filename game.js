@@ -3,6 +3,12 @@ const ctx = canvas.getContext('2d');
 const scoreDisplay = document.getElementById('score');
 const gameOverDisplay = document.getElementById('gameOver');
 
+// 画像の読み込み
+const obstacleImg = new Image();
+obstacleImg.src = 'doku_green.png'; // ブロックの画像
+const playerImg = new Image();
+playerImg.src = 'character_darkknight_02.png'; // プレイヤーの画像
+
 let player = {
     x: 50,
     y: canvas.height - 50,
@@ -21,14 +27,24 @@ let gameOver = false;
 let frameCount = 0;
 
 function drawPlayer() {
-    ctx.fillStyle = '#0f0';
-    ctx.fillRect(player.x, player.y, player.width, player.height);
+    if (playerImg.complete && playerImg.naturalHeight !== 0) {
+        ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
+    } else {
+        // フォールバック: 緑の矩形
+        ctx.fillStyle = '#0f0';
+        ctx.fillRect(player.x, player.y, player.width, player.height);
+    }
 }
 
 function drawObstacles() {
-    ctx.fillStyle = '#f00';
     obstacles.forEach(obstacle => {
-        ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+        if (obstacleImg.complete && obstacleImg.naturalHeight !== 0) {
+            ctx.drawImage(obstacleImg, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+        } else {
+            // フォールバック: 赤の矩形
+            ctx.fillStyle = '#f00';
+            ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+        }
     });
 }
 
@@ -47,11 +63,14 @@ function updatePlayer() {
 }
 
 function createObstacle() {
+    let randomY = Math.random() * 70 + (canvas.height - 100); // ランダムY: canvas.height - 100 ～ canvas.height - 30
+    let randomWidth = Math.random() * 20 + 20; // ランダム幅: 20-40
+    let randomHeight = Math.random() * 20 + 20; // ランダム高さ: 20-40
     let obstacle = {
         x: canvas.width,
-        y: canvas.height - 30,
-        width: 30,
-        height: 30,
+        y: randomY,
+        width: randomWidth,
+        height: randomHeight,
         speed: 3
     };
     obstacles.push(obstacle);
